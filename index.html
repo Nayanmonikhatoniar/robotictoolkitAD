@@ -1,0 +1,751 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AssamDynamics - Robotics Toolkit</title>
+    <style>
+        :root {
+            --primary-blue: #0066cc;
+            --dark-blue: #003366;
+            --black: #000000;
+            --white: #ffffff;
+            --light-gray: #f0f0f0;
+            --accent-blue: #0099ff;
+            --industrial-metal: #5a5a5a;
+            --joint-color: #8b8b8b;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Arial', sans-serif;
+        }
+        
+        body {
+            background-color: var(--black);
+            color: var(--white);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+        
+        header {
+            background-color: var(--black);
+            padding: 1rem 2rem;
+            border-bottom: 2px solid var(--primary-blue);
+            position: relative;
+        }
+        
+        .logo {
+            color: var(--white);
+            font-size: 2rem;
+            font-weight: bold;
+            letter-spacing: 2px;
+        }
+        
+        .logo span {
+            color: var(--primary-blue);
+        }
+        
+        .hero {
+            height: 400px;
+            background-image: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url('https://images.unsplash.com/photo-1620712943543-bcc4688e7485?ixlib=rb-1.2.1&auto=format&fit=crop&w=1920&q=80');
+            background-size: cover;
+            background-position: center;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 0 2rem;
+        }
+        
+        .hero h1 {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            color: var(--white);
+        }
+        
+        .hero p {
+            font-size: 1.2rem;
+            max-width: 800px;
+            color: var(--light-gray);
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 2rem;
+        }
+        
+        .tool-selector {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 2rem;
+            border-bottom: 1px solid var(--dark-blue);
+        }
+        
+        .tool-btn {
+            background: none;
+            border: none;
+            color: var(--white);
+            padding: 1rem 2rem;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+        
+        .tool-btn.active {
+            color: var(--accent-blue);
+        }
+        
+        .tool-btn.active::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background-color: var(--accent-blue);
+        }
+        
+        .tool-btn:hover {
+            color: var(--accent-blue);
+        }
+        
+        .tool-content {
+            display: none;
+            background-color: rgba(0, 51, 102, 0.2);
+            padding: 2rem;
+            border-radius: 8px;
+            border: 1px solid var(--dark-blue);
+        }
+        
+        .tool-content.active {
+            display: block;
+            animation: fadeIn 0.5s ease;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .input-group {
+            margin-bottom: 1.5rem;
+        }
+        
+        .input-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: var(--accent-blue);
+            font-weight: bold;
+        }
+        
+        .input-group input {
+            width: 100%;
+            padding: 0.8rem;
+            background-color: rgba(255, 255, 255, 0.1);
+            border: 1px solid var(--dark-blue);
+            border-radius: 4px;
+            color: var(--white);
+            font-size: 1rem;
+        }
+        
+        .input-group input:focus {
+            outline: none;
+            border-color: var(--accent-blue);
+        }
+        
+        button.calculate {
+            background-color: var(--primary-blue);
+            color: var(--white);
+            border: none;
+            padding: 1rem 2rem;
+            font-size: 1rem;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            margin-top: 1rem;
+        }
+        
+        button.calculate:hover {
+            background-color: var(--accent-blue);
+        }
+        
+        .results {
+            margin-top: 2rem;
+            padding: 1.5rem;
+            background-color: rgba(0, 51, 102, 0.3);
+            border-radius: 8px;
+            border-left: 4px solid var(--accent-blue);
+        }
+        
+        .results h3 {
+            color: var(--accent-blue);
+            margin-bottom: 1rem;
+        }
+        
+        .results pre {
+            background-color: rgba(0, 0, 0, 0.5);
+            padding: 1rem;
+            border-radius: 4px;
+            overflow-x: auto;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+        
+        footer {
+            background-color: var(--black);
+            padding: 2rem;
+            text-align: center;
+            border-top: 1px solid var(--dark-blue);
+            margin-top: 3rem;
+        }
+        
+        footer p {
+            color: var(--light-gray);
+            font-size: 0.9rem;
+        }
+        
+        .visualization {
+            width: 100%;
+            height: 400px;
+            background-color: rgba(0, 51, 102, 0.2);
+            margin: 2rem 0;
+            border-radius: 8px;
+            position: relative;
+            border: 1px solid var(--dark-blue);
+            overflow: hidden;
+        }
+        
+        .arm-segment {
+            position: absolute;
+            background-color: var(--industrial-metal);
+            transform-origin: left center;
+            box-shadow: 0 0 10px rgba(0,0,0,0.5);
+            border-radius: 5px;
+        }
+        
+        .joint {
+            position: absolute;
+            width: 24px;
+            height: 24px;
+            background-color: var(--joint-color);
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            border: 3px solid #333;
+            box-shadow: 0 0 10px rgba(0,0,0,0.7);
+        }
+        
+        .end-effector {
+            position: absolute;
+            width: 30px;
+            height: 30px;
+            background-color: #ff3333;
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            border: 3px solid #800000;
+            box-shadow: 0 0 10px rgba(0,0,0,0.7);
+        }
+        
+        .value-label {
+            position: absolute;
+            color: white;
+            font-size: 12px;
+            background-color: rgba(0,0,0,0.7);
+            padding: 2px 5px;
+            border-radius: 3px;
+            white-space: nowrap;
+        }
+        
+        .base-plate {
+            position: absolute;
+            background-color: #333;
+            border-radius: 5px;
+        }
+        
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 2rem;
+            }
+            
+            .hero p {
+                font-size: 1rem;
+            }
+            
+            .tool-selector {
+                flex-direction: column;
+            }
+            
+            .tool-btn {
+                padding: 0.8rem;
+            }
+            
+            .visualization {
+                height: 300px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="logo">Assam<span>Dynamics</span></div>
+    </header>
+    
+    <section class="hero">
+        <h1>Robotic Manipulator Toolkit</h1>
+        <p>Advanced Inverse Kinematics and Jacobian Matrix Calculators for Robotic Arm Analysis</p>
+    </section>
+    
+    <div class="container">
+        <div class="tool-selector">
+            <button class="tool-btn active" data-tool="ik">Inverse Kinematics</button>
+            <button class="tool-btn" data-tool="jacobian">Jacobian Calculator</button>
+        </div>
+        
+        <div id="ik-tool" class="tool-content active">
+            <div class="input-group">
+                <label for="ik-x">Target X Position</label>
+                <input type="number" id="ik-x" placeholder="Enter X coordinate" step="0.01">
+            </div>
+            
+            <div class="input-group">
+                <label for="ik-y">Target Y Position</label>
+                <input type="number" id="ik-y" placeholder="Enter Y coordinate" step="0.01">
+            </div>
+            
+            <div class="input-group">
+                <label for="l1">Link 1 Length (L1)</label>
+                <input type="number" id="l1" placeholder="Enter length of first link" value="1" step="0.01">
+            </div>
+            
+            <div class="input-group">
+                <label for="l2">Link 2 Length (L2)</label>
+                <input type="number" id="l2" placeholder="Enter length of second link" value="1" step="0.01">
+            </div>
+            
+            <button class="calculate" id="calculate-ik">Calculate Joint Angles</button>
+            
+            <div class="visualization" id="ik-visualization">
+                <!-- Visualization will be rendered here -->
+            </div>
+            
+            <div class="results" id="ik-results">
+                <h3>Results</h3>
+                <pre id="ik-output">Enter values and click calculate to see results.</pre>
+            </div>
+        </div>
+        
+        <div id="jacobian-tool" class="tool-content">
+            <div class="input-group">
+                <label for="theta1">Joint Angle 1 (θ1 in degrees)</label>
+                <input type="number" id="theta1" placeholder="Enter first joint angle" step="0.1">
+            </div>
+            
+            <div class="input-group">
+                <label for="theta2">Joint Angle 2 (θ2 in degrees)</label>
+                <input type="number" id="theta2" placeholder="Enter second joint angle" step="0.1">
+            </div>
+            
+            <div class="input-group">
+                <label for="jl1">Link 1 Length (L1)</label>
+                <input type="number" id="jl1" placeholder="Enter length of first link" value="1" step="0.01">
+            </div>
+            
+            <div class="input-group">
+                <label for="jl2">Link 2 Length (L2)</label>
+                <input type="number" id="jl2" placeholder="Enter length of second link" value="1" step="0.01">
+            </div>
+            
+            <div class="input-group">
+                <label for="joint-vel1">Joint Velocity 1 (θ1' in deg/s)</label>
+                <input type="number" id="joint-vel1" placeholder="Enter first joint velocity" value="0" step="0.1">
+            </div>
+            
+            <div class="input-group">
+                <label for="joint-vel2">Joint Velocity 2 (θ2' in deg/s)</label>
+                <input type="number" id="joint-vel2" placeholder="Enter second joint velocity" value="0" step="0.1">
+            </div>
+            
+            <button class="calculate" id="calculate-jacobian">Calculate Jacobian & End Effector Velocity</button>
+            
+            <div class="visualization" id="jacobian-visualization">
+                <!-- Visualization will be rendered here -->
+            </div>
+            
+            <div class="results" id="jacobian-results">
+                <h3>Results</h3>
+                <pre id="jacobian-output">Enter values and click calculate to see results.</pre>
+            </div>
+        </div>
+    </div>
+    
+    <footer>
+        <p>© 2025 AssamDynamics Pvt Ltd. All Rights Reserved.</p>
+    </footer>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Tool selector functionality
+            const toolBtns = document.querySelectorAll('.tool-btn');
+            const toolContents = document.querySelectorAll('.tool-content');
+            
+            toolBtns.forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const toolId = this.getAttribute('data-tool');
+                    
+                    // Update active button
+                    toolBtns.forEach(b => b.classList.remove('active'));
+                    this.classList.add('active');
+                    
+                    // Update active content
+                    toolContents.forEach(content => {
+                        content.classList.remove('active');
+                        if (content.id === `${toolId}-tool`) {
+                            content.classList.add('active');
+                        }
+                    });
+                });
+            });
+            
+            // Inverse Kinematics Calculator
+            document.getElementById('calculate-ik').addEventListener('click', calculateIK);
+            
+            function calculateIK() {
+                const x = parseFloat(document.getElementById('ik-x').value);
+                const y = parseFloat(document.getElementById('ik-y').value);
+                const l1 = parseFloat(document.getElementById('l1').value);
+                const l2 = parseFloat(document.getElementById('l2').value);
+                
+                // Check if inputs are valid
+                if (isNaN(x) || isNaN(y) || isNaN(l1) || isNaN(l2)) {
+                    document.getElementById('ik-output').textContent = 'Please enter valid numbers for all fields.';
+                    return;
+                }
+                
+                // Calculate distance from origin to target
+                const D = Math.sqrt(x*x + y*y);
+                
+                // Check if target is reachable
+                if (D > l1 + l2 || D < Math.abs(l1 - l2)) {
+                    document.getElementById('ik-output').textContent = `Target position (${x}, ${y}) is unreachable with the given link lengths (L1=${l1}, L2=${l2}).`;
+                    return;
+                }
+                
+                // Calculate theta2 using law of cosines
+                const cosTheta2 = (x*x + y*y - l1*l1 - l2*l2) / (2 * l1 * l2);
+                const sinTheta2 = Math.sqrt(1 - cosTheta2*cosTheta2);
+                const theta2 = Math.atan2(sinTheta2, cosTheta2);
+                
+                // Calculate theta1
+                const k1 = l1 + l2 * cosTheta2;
+                const k2 = l2 * sinTheta2;
+                const theta1 = Math.atan2(y, x) - Math.atan2(k2, k1);
+                
+                // Convert to degrees
+                const theta1Deg = theta1 * 180 / Math.PI;
+                const theta2Deg = theta2 * 180 / Math.PI;
+                
+                // Also calculate the second possible solution (elbow down)
+                const theta2Alt = -theta2;
+                const theta1Alt = Math.atan2(y, x) - Math.atan2(l2 * Math.sin(theta2Alt), l1 + l2 * Math.cos(theta2Alt));
+                const theta1AltDeg = theta1Alt * 180 / Math.PI;
+                const theta2AltDeg = theta2Alt * 180 / Math.PI;
+                
+                // Display results
+                const output = `Primary Solution (Elbow Up):
+θ1 = ${theta1Deg.toFixed(2)}°
+θ2 = ${theta2Deg.toFixed(2)}°
+
+Alternative Solution (Elbow Down):
+θ1 = ${theta1AltDeg.toFixed(2)}°
+θ2 = ${theta2AltDeg.toFixed(2)}°
+
+End Effector Position Verification:
+For primary solution:
+X = ${(l1 * Math.cos(theta1) + l2 * Math.cos(theta1 + theta2)).toFixed(4)}
+Y = ${(l1 * Math.sin(theta1) + l2 * Math.sin(theta1 + theta2)).toFixed(4)}`;
+                
+                document.getElementById('ik-output').textContent = output;
+                
+                // Update visualization
+                visualizeIK(l1, l2, theta1, theta2, x, y);
+            }
+            
+            function visualizeIK(l1, l2, theta1, theta2, targetX, targetY) {
+                const vis = document.getElementById('ik-visualization');
+                vis.innerHTML = '';
+                
+                // Set up visualization dimensions
+                const visWidth = vis.offsetWidth;
+                const visHeight = vis.offsetHeight;
+                const centerX = visWidth / 2;
+                const centerY = visHeight / 2;
+                
+                // Scale factor to fit the arm in the visualization
+                const maxLength = l1 + l2;
+                const scale = Math.min(visWidth, visHeight) * 0.4 / maxLength;
+                
+                // Calculate joint positions
+                const x0 = centerX;
+                const y0 = centerY;
+                const x1 = x0 + l1 * Math.cos(theta1) * scale;
+                const y1 = y0 + l1 * Math.sin(theta1) * scale;
+                const x2 = x1 + l2 * Math.cos(theta1 + theta2) * scale;
+                const y2 = y1 + l2 * Math.sin(theta1 + theta2) * scale;
+                
+                // Target position in visualization coordinates
+                const targetVisX = centerX + targetX * scale;
+                const targetVisY = centerY + targetY * scale;
+                
+                // Draw base plate
+                const basePlate = document.createElement('div');
+                basePlate.className = 'base-plate';
+                basePlate.style.width = '80px';
+                basePlate.style.height = '80px';
+                basePlate.style.left = `${x0 - 40}px`;
+                basePlate.style.top = `${y0 - 40}px`;
+                vis.appendChild(basePlate);
+                
+                // Draw link 1
+                const link1 = document.createElement('div');
+                link1.className = 'arm-segment';
+                link1.style.width = `${l1 * scale}px`;
+                link1.style.height = '20px';
+                link1.style.left = `${x0}px`;
+                link1.style.top = `${y0 - 10}px`;
+                link1.style.transform = `rotate(${theta1}rad)`;
+                vis.appendChild(link1);
+                
+                // Draw link 2
+                const link2 = document.createElement('div');
+                link2.className = 'arm-segment';
+                link2.style.width = `${l2 * scale}px`;
+                link2.style.height = '16px';
+                link2.style.left = `${x1}px`;
+                link2.style.top = `${y1 - 8}px`;
+                link2.style.transform = `rotate(${theta1 + theta2}rad)`;
+                vis.appendChild(link2);
+                
+                // Draw joints
+                const joint0 = document.createElement('div');
+                joint0.className = 'joint';
+                joint0.style.left = `${x0}px`;
+                joint0.style.top = `${y0}px`;
+                vis.appendChild(joint0);
+                
+                const joint1 = document.createElement('div');
+                joint1.className = 'joint';
+                joint1.style.left = `${x1}px`;
+                joint1.style.top = `${y1}px`;
+                vis.appendChild(joint1);
+                
+                // Draw end effector
+                const endEffector = document.createElement('div');
+                endEffector.className = 'end-effector';
+                endEffector.style.left = `${x2}px`;
+                endEffector.style.top = `${y2}px`;
+                vis.appendChild(endEffector);
+                
+                // Draw target position
+                const targetMarker = document.createElement('div');
+                targetMarker.className = 'end-effector';
+                targetMarker.style.left = `${targetVisX}px`;
+                targetMarker.style.top = `${targetVisY}px`;
+                targetMarker.style.backgroundColor = '#33ff33';
+                vis.appendChild(targetMarker);
+                
+                // Add value labels
+                addLabel(vis, x0, y0, `Base\n(0,0)`);
+                addLabel(vis, x1, y1, `Joint 2\nθ1=${(theta1 * 180/Math.PI).toFixed(1)}°`);
+                addLabel(vis, x2, y2, `End Effector\n(${(l1 * Math.cos(theta1) + l2 * Math.cos(theta1 + theta2)).toFixed(2)}, ${(l1 * Math.sin(theta1) + l2 * Math.sin(theta1 + theta2)).toFixed(2)})`);
+                addLabel(vis, (x0+x1)/2, (y0+y1)/2, `L1=${l1.toFixed(2)}`, true);
+                addLabel(vis, (x1+x2)/2, (y1+y2)/2, `L2=${l2.toFixed(2)}`, true);
+                addLabel(vis, targetVisX, targetVisY, `Target\n(${targetX.toFixed(2)}, ${targetY.toFixed(2)})`);
+            }
+            
+            // Jacobian Calculator
+            document.getElementById('calculate-jacobian').addEventListener('click', calculateJacobian);
+            
+            function calculateJacobian() {
+                const theta1 = parseFloat(document.getElementById('theta1').value) * Math.PI / 180;
+                const theta2 = parseFloat(document.getElementById('theta2').value) * Math.PI / 180;
+                const l1 = parseFloat(document.getElementById('jl1').value);
+                const l2 = parseFloat(document.getElementById('jl2').value);
+                const theta1_dot = parseFloat(document.getElementById('joint-vel1').value) * Math.PI / 180;
+                const theta2_dot = parseFloat(document.getElementById('joint-vel2').value) * Math.PI / 180;
+                
+                // Check if inputs are valid
+                if (isNaN(theta1) || isNaN(theta2) || isNaN(l1) || isNaN(l2) || 
+                    isNaN(theta1_dot) || isNaN(theta2_dot)) {
+                    document.getElementById('jacobian-output').textContent = 'Please enter valid numbers for all fields.';
+                    return;
+                }
+                
+                // Calculate Jacobian matrix elements
+                const J11 = -l1 * Math.sin(theta1) - l2 * Math.sin(theta1 + theta2);
+                const J12 = -l2 * Math.sin(theta1 + theta2);
+                const J21 = l1 * Math.cos(theta1) + l2 * Math.cos(theta1 + theta2);
+                const J22 = l2 * Math.cos(theta1 + theta2);
+                
+                // Calculate end effector velocity
+                const x_dot = J11 * theta1_dot + J12 * theta2_dot;
+                const y_dot = J21 * theta1_dot + J22 * theta2_dot;
+                
+                // Display results
+                const output = `Jacobian Matrix:
+J = [ ${J11.toFixed(4)}  ${J12.toFixed(4)} ]
+    [ ${J21.toFixed(4)}  ${J22.toFixed(4)} ]
+
+End Effector Velocity:
+ẋ = ${x_dot.toFixed(4)} units/s
+ẏ = ${y_dot.toFixed(4)} units/s
+
+End Effector Position:
+x = ${(l1 * Math.cos(theta1) + l2 * Math.cos(theta1 + theta2)).toFixed(4)}
+y = ${(l1 * Math.sin(theta1) + l2 * Math.sin(theta1 + theta2)).toFixed(4)}`;
+                
+                document.getElementById('jacobian-output').textContent = output;
+                
+                // Update visualization
+                visualizeJacobian(l1, l2, theta1, theta2, x_dot, y_dot);
+            }
+            
+            function visualizeJacobian(l1, l2, theta1, theta2, x_dot, y_dot) {
+                const vis = document.getElementById('jacobian-visualization');
+                vis.innerHTML = '';
+                
+                // Set up visualization dimensions
+                const visWidth = vis.offsetWidth;
+                const visHeight = vis.offsetHeight;
+                const centerX = visWidth / 2;
+                const centerY = visHeight / 2;
+                
+                // Scale factor to fit the arm in the visualization
+                const maxLength = l1 + l2;
+                const scale = Math.min(visWidth, visHeight) * 0.4 / maxLength;
+                
+                // Calculate joint positions
+                const x0 = centerX;
+                const y0 = centerY;
+                const x1 = x0 + l1 * Math.cos(theta1) * scale;
+                const y1 = y0 + l1 * Math.sin(theta1) * scale;
+                const x2 = x1 + l2 * Math.cos(theta1 + theta2) * scale;
+                const y2 = y1 + l2 * Math.sin(theta1 + theta2) * scale;
+                
+                // Draw base plate
+                const basePlate = document.createElement('div');
+                basePlate.className = 'base-plate';
+                basePlate.style.width = '80px';
+                basePlate.style.height = '80px';
+                basePlate.style.left = `${x0 - 40}px`;
+                basePlate.style.top = `${y0 - 40}px`;
+                vis.appendChild(basePlate);
+                
+                // Draw link 1
+                const link1 = document.createElement('div');
+                link1.className = 'arm-segment';
+                link1.style.width = `${l1 * scale}px`;
+                link1.style.height = '20px';
+                link1.style.left = `${x0}px`;
+                link1.style.top = `${y0 - 10}px`;
+                link1.style.transform = `rotate(${theta1}rad)`;
+                vis.appendChild(link1);
+                
+                // Draw link 2
+                const link2 = document.createElement('div');
+                link2.className = 'arm-segment';
+                link2.style.width = `${l2 * scale}px`;
+                link2.style.height = '16px';
+                link2.style.left = `${x1}px`;
+                link2.style.top = `${y1 - 8}px`;
+                link2.style.transform = `rotate(${theta1 + theta2}rad)`;
+                vis.appendChild(link2);
+                
+                // Draw joints
+                const joint0 = document.createElement('div');
+                joint0.className = 'joint';
+                joint0.style.left = `${x0}px`;
+                joint0.style.top = `${y0}px`;
+                vis.appendChild(joint0);
+                
+                const joint1 = document.createElement('div');
+                joint1.className = 'joint';
+                joint1.style.left = `${x1}px`;
+                joint1.style.top = `${y1}px`;
+                vis.appendChild(joint1);
+                
+                // Draw end effector
+                const endEffector = document.createElement('div');
+                endEffector.className = 'end-effector';
+                endEffector.style.left = `${x2}px`;
+                endEffector.style.top = `${y2}px`;
+                vis.appendChild(endEffector);
+                
+                // Add value labels
+                addLabel(vis, x0, y0, `Base\n(0,0)`);
+                addLabel(vis, x1, y1, `Joint 2\nθ1=${(theta1 * 180/Math.PI).toFixed(1)}°\nθ1'=${(theta1_dot * 180/Math.PI).toFixed(1)}°/s`);
+                addLabel(vis, x2, y2, `End Effector\n(${(l1 * Math.cos(theta1) + l2 * Math.cos(theta1 + theta2)).toFixed(2)}, ${(l1 * Math.sin(theta1) + l2 * Math.sin(theta1 + theta2)).toFixed(2)})\nVx=${x_dot.toFixed(2)}\nVy=${y_dot.toFixed(2)}`);
+                addLabel(vis, (x0+x1)/2, (y0+y1)/2, `L1=${l1.toFixed(2)}`, true);
+                addLabel(vis, (x1+x2)/2, (y1+y2)/2, `L2=${l2.toFixed(2)}\nθ2=${(theta2 * 180/Math.PI).toFixed(1)}°\nθ2'=${(theta2_dot * 180/Math.PI).toFixed(1)}°/s`, true);
+                
+                // Draw velocity vector if non-zero
+                if (x_dot !== 0 || y_dot !== 0) {
+                    const velScale = 20; // Scale factor for velocity vector visibility
+                    const velX = x2 + x_dot * velScale;
+                    const velY = y2 + y_dot * velScale;
+                    
+                    const velocityVector = document.createElement('div');
+                    velocityVector.style.position = 'absolute';
+                    velocityVector.style.left = `${x2}px`;
+                    velocityVector.style.top = `${y2}px`;
+                    velocityVector.style.width = `${Math.sqrt(x_dot*x_dot + y_dot*y_dot) * velScale}px`;
+                    velocityVector.style.height = '4px';
+                    velocityVector.style.backgroundColor = '#ff33ff';
+                    velocityVector.style.transformOrigin = 'left center';
+                    velocityVector.style.transform = `rotate(${Math.atan2(y_dot, x_dot)}rad)`;
+                    vis.appendChild(velocityVector);
+                    
+                    // Add arrowhead
+                    const arrowSize = 10;
+                    const arrow = document.createElement('div');
+                    arrow.style.position = 'absolute';
+                    arrow.style.left = `${velX}px`;
+                    arrow.style.top = `${velY}px`;
+                    arrow.style.width = '0';
+                    arrow.style.height = '0';
+                    arrow.style.borderLeft = `${arrowSize}px solid transparent`;
+                    arrow.style.borderRight = `${arrowSize}px solid transparent`;
+                    arrow.style.borderBottom = `${arrowSize}px solid #ff33ff`;
+                    arrow.style.transform = `translate(-50%, -50%) rotate(${Math.atan2(y_dot, x_dot) + Math.PI/2}rad)`;
+                    vis.appendChild(arrow);
+                    
+                    // Add velocity label
+                    addLabel(vis, (x2+velX)/2, (y2+velY)/2, `Velocity\n${Math.sqrt(x_dot*x_dot + y_dot*y_dot).toFixed(2)} units/s`);
+                }
+            }
+            
+            // Helper function to add labels to visualization
+            function addLabel(container, x, y, text, isLinkLabel = false) {
+                const label = document.createElement('div');
+                label.className = 'value-label';
+                label.textContent = text;
+                label.style.left = `${x}px`;
+                label.style.top = `${y}px`;
+                
+                if (isLinkLabel) {
+                    label.style.transform = 'translate(-50%, -50%)';
+                } else {
+                    // Position label offset from the point
+                    label.style.transform = 'translate(20px, -20px)';
+                }
+                
+                container.appendChild(label);
+            }
+        });
+    </script>
+</body>
+</html>
